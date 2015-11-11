@@ -14,19 +14,19 @@ public class SignInPage {
     public void fillInUsername(WebDriver driver, String s) {
         WebElement usernameTextbox = driver.findElement(By.id("Email"));
         usernameTextbox.clear();
-        usernameTextbox.sendKeys("seleniumtest915@gmail.com");
+        usernameTextbox.sendKeys(s);
         WebElement clickNext = driver.findElement(By.id("next"));
         clickNext.click();
     }
 
 
-    public void fillInPassword(WebDriver driver, String selenium123) {
+    public void fillInPassword(WebDriver driver, String s) {
         WebDriverWait wait = new WebDriverWait(driver,30);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("Passwd")));
 
         WebElement passwordTextbox = driver.findElement(By.name("Passwd"));
         passwordTextbox.clear();
-        passwordTextbox.sendKeys("selenium123");
+        passwordTextbox.sendKeys(s);
         WebElement checkbox = driver.findElement(By.id("PersistentCookie"));
         checkbox.click();
     }

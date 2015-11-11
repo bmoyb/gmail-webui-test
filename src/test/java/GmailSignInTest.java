@@ -1,4 +1,5 @@
 import com.appsenseca.pageobjects.EmailHomePage;
+import com.appsenseca.pageobjects.EmailViewPage;
 import com.appsenseca.pageobjects.SignInPage;
 import com.appsenseca.util.WebUtil;
 import junit.framework.Assert;
@@ -26,129 +27,60 @@ public class GmailSignInTest {
         SignInPage signInPage = WebUtil.goToSignInPage(driver);
         //Fill in username
         signInPage.fillInUsername(driver,"seleniumtest915@gmail.com" );
-
         //fill in password
         signInPage.fillInPassword(driver, "selenium123");
-
         //click sign in
         EmailHomePage emailHomePage = signInPage.clickSignIn(driver);
-
         //verify user is signed in
-
         Assert.assertTrue("Inbox should exist", EmailHomePage.isElementExist(driver));
         //sign out
-
         signInPage = emailHomePage.signOut(driver);
-
         //verify user is signed out
-
-        Assert.assertTrue("Next button should exist", SignInPage.isElementExist(driver));
-
-
-
+        Assert.assertTrue("Next button should exist", signInPage.isElementExist(driver));
 
     }
     @Test
     public void sendAndReceiveEmail() {
         //click sign in
-        driver.get("http://gmail.com");
+        SignInPage signInPage = WebUtil.goToSignInPage(driver);
         //Fill in username
-        WebElement usernameTextbox = driver.findElement(By.id("Email"));
-        usernameTextbox.clear();
-        usernameTextbox.sendKeys("seleniumtest915@gmail.com");
-        WebElement clickNext = driver.findElement(By.id("next"));
-        clickNext.click();
+        signInPage.fillInUsername(driver,"seleniumtest915@gmail.com" );
         //fill in password
-        WebDriverWait wait = new WebDriverWait(driver,30);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("Passwd")));
-
-        WebElement passwordTextbox = driver.findElement(By.name("Passwd"));
-        passwordTextbox.clear();
-        passwordTextbox.sendKeys("selenium123");
-        WebElement checkbox = driver.findElement(By.id("PersistentCookie"));
-        checkbox.click();
+        signInPage.fillInPassword(driver, "selenium123");
         //click sign in
-        WebElement signIn = driver.findElement(By.id("signIn"));
-        signIn.click();
+        EmailHomePage emailHomePage = signInPage.clickSignIn(driver);
         //verify user is signed in
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.partialLinkText("Inbox")));
-
-        Assert.assertTrue("Inbox should exist", driver.findElements(By.partialLinkText("Inbox")).size() > 0);
-
+        Assert.assertTrue("Inbox should exist", emailHomePage.isElementExist(driver));
         //click compose
-
-        WebElement compose = driver.findElement(By.cssSelector("div[role=\"button\"][class=\"T-I J-J5-Ji T-I-KE L3\"]"));
-        compose.click();
+        emailHomePage.composeEmail(driver);
         //fill in recipient
-
-        WebElement recipient = driver.findElement(By.cssSelector("textarea[name=\"to\"]"));
-        recipient.clear();
-        final String recipientEmail = "seleniumtest915@gmail.com";
-        recipient.sendKeys(recipientEmail);
+        emailHomePage.fillRecipient(driver, "seleniumtest915@gmail.com");
         //fill in subject
-
-        WebElement subject = driver.findElement(By.cssSelector("input[name=\"subjectbox\"]"));
-        subject.clear();
         final String subjectText = "Gmail send Email test";
-        subject.sendKeys(subjectText);
-
+        emailHomePage.fillSubject(driver, subjectText);
         //fill in body
-        WebElement body = driver.findElement(By.cssSelector("div[aria-label=\"Message Body\"]"));
-        body.clear();
         final String bodyText = "This is the body of the Test Email.";
-        body.sendKeys(bodyText);
+        emailHomePage.fillBody(driver, bodyText);
         //click send
-
-        WebElement send = driver.findElement(By.cssSelector("div[role=\"button\"][aria-label*=\"Send\"]"));
-        send.click();
+        emailHomePage.hitSend(driver);
         //click inbox
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.partialLinkText("Inbox (1)")));
-        WebElement inbox = driver.findElement(By.partialLinkText("Inbox (1)"));
-        inbox.click();
-
-        //click email
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div[class=\"y6\"] span[id] b")));
-        WebElement clickEmail = driver.findElement(By.cssSelector("div[class=\"y6\"] span[id] b"));
-        clickEmail.click();
-
+        emailHomePage.refreshInbox(driver);
+        //open email
+        EmailViewPage emailViewPage = emailHomePage.openEmail(driver);
         //verify email subject and body is correct
+        String actualSubject = emailViewPage.getEmailSubject(driver);
+        Assert.assertEquals("Subject should equal", subjectText, actualSubject);
 
-        WebElement verifySubject = driver.findElement(By.cssSelector("div[class=\"ha\"] h2[id]"));
-        Assert.assertEquals("Subject should equal", subjectText, verifySubject.getText());
+        String actualBody = emailViewPage.getEmailBody(driver);
+        Assert.assertEquals("Body should equal", bodyText, actualBody);
 
-        WebElement verifyBody = driver.findElement(By.cssSelector("div[class=\"a3s\"] div[dir=\"ltr\"]"));
-        Assert.assertEquals("Body should equal", bodyText, verifyBody.getText());
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.partialLinkText("Inbox")));
-        WebElement inboxZero = driver.findElement(By.partialLinkText("Inbox"));
-        inboxZero.click();
-
+        emailHomePage.refreshInbox(driver);
         //delete email
-
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div [class=\"F cf zt\"]")));
-        WebElement table = driver.findElement(By.cssSelector("div [class=\"F cf zt\"]")); //get table class
-        List<WebElement> td=table.findElements(By.tagName("tbody")); //make List webelement to store all "tbody" tags
-        WebElement emailCheckbox = td.get(0).findElement(By.cssSelector("div[class=\"T-Jo-auh\"]")); //grab first td.get(0) tag
-        emailCheckbox.click();
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div[class=\"ar9 T-I-J3 J-J5-Ji\"]")));
-        WebElement deleteEmail = driver.findElement(By.cssSelector("div[class=\"ar9 T-I-J3 J-J5-Ji\"]"));
-        deleteEmail.click();
+        emailHomePage.deleteNewestEmail(driver);
         //sign out
-
-        WebElement profile = driver.findElement(By.cssSelector("span[class=\"gb_Ka gbii\"]"));
-        profile.click();
-
-        WebElement signOut = driver.findElement(By.id("gb_71"));
-        signOut.click();
-
+        signInPage = emailHomePage.signOut(driver);
         //verify user is signed out
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("input[id=\"Email\"]")));
-        Assert.assertTrue("Next button should exist", driver.findElements(By.cssSelector("input[id=\"Email\"]")).size() > 0);
-
-
+        Assert.assertTrue("Next button should exist", signInPage.isElementExist(driver));
     }
 
     @After
