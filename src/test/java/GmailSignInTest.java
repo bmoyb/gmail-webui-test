@@ -5,12 +5,14 @@ import com.appsenseca.pageobjects.EmailViewPage;
 import com.appsenseca.pageobjects.SignInPage;
 import com.appsenseca.util.WebUtil;
 import junit.framework.Assert;
+import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -22,7 +24,17 @@ import java.util.List;
  * Created by mo_brian on 11/9/15.
  */
 public class GmailSignInTest {
-    WebDriver driver = new FirefoxDriver();
+    WebDriver driver;
+    @Before
+    public void setDriver(){
+        String browserName = System.getenv("browser");
+        if(browserName != null && browserName.equalsIgnoreCase("chrome")){
+            driver = new ChromeDriver();
+        }else {
+            driver = new FirefoxDriver();
+        }
+    }
+
     @Category({Critical.class})
     @Test
     public void gmailLoginShouldBeSuccessful(){
